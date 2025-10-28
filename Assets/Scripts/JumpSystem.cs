@@ -1,53 +1,96 @@
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.InputSystem;
 
-public class Jump : MonoBehaviour
+[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(CapsuleCollider))]
+public class JumpSystem : MonoBehaviour
 {
-    public Rigidbody rb;
+    public float desiredJumpHeight = 3.2f; 
+    public float timeToApex = 0.50f; 
 
-    [Header("Jump Attributes")]
-    public float jumpForce = 6.5f;
-    public float gravityScale = 2.0f;
-    public bool isGrounded = false;
-
+    [Header("Hang-Time & Feel")]
+    public float apexThresholdY = 0.5f;   
+    public float ascendMult = 1.00f;  
+    public float apexMult = 0.35f;   
+    public float fallMult = 1.60f;  
+    public float cutJumpMult = 2.0f;   
+    [Header("Feedback (opsiyonel)")]
     public ParticleSystem jetBurstVFX;
     public AudioSource jumpSFX;
-    public Camera mainCamera;
+    public CameraFeel camFeel;              
 
-    private float verticalVelocity;
-    private Vector3 jumpDirection = Vector3.up;
+    Rigidbody rb;
+    bool isGrounded = true;
+
+   
+    float baseGravity;  
+    float jumpVelocity;  
+
+    void Awake()
+    {
+        rb = GetComponent<Rigidbody>();
+        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+
+      
+        baseGravity = -2f * desiredJumpHeight / (timeToApex * timeToApex);
+        jumpVelocity = 2f * desiredJumpHeight / timeToApex;
+    }
 
     void Update()
     {
+        
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
-        {
-            ExecuteJump();
-        }
-
-        if (!isGrounded)
-        {
-            verticalVelocity += Physics.gravity.y * gravityScale * Time.deltaTime;
-            rb.linearVelocity += Vector3.up * verticalVelocity * Time.deltaTime;
-        }
+            DoJump();
     }
 
-    void ExecuteJump()
+    void FixedUpdate()
     {
-        rb.AddForce(jumpDirection * jumpForce, ForceMode.Impulse);
+        
+        var v = rb.linearVelocity;
+        float gMult;
+
+        bool jumpHeld = Input.GetKey(KeyCode.Space);
+        float vy = v.y;
+
+        if (Mathf.Abs(vy) <= apexThresholdY)
+        {
+            
+            gMult = apexMult;
+        }
+        else if (vy > apexThresholdY)
+        {
+           
+            gMult = ascendMult;
+
+          
+            if (!jumpHeld) gMult *= cutJumpMult;
+        }
+        else
+        {
+            
+            gMult = fallMult;
+        }
+
+       
+        rb.AddForce(Vector3.up * baseGravity * gMult, ForceMode.Acceleration);
+    }
+
+    void DoJump()
+    {
+        var v = rb.linearVelocity;
+        v.y = jumpVelocity;           
+        rb.linearVelocity = v;
         isGrounded = false;
 
-        if (jetBurstVFX != null) jetBurstVFX.Play();
-        if (jumpSFX != null) jumpSFX.Play();
-
-        if (mainCamera != null)
-            mainCamera.transform.rotation *= Quaternion.Euler(-2.5f, 0, 0);
+        if (jetBurstVFX) jetBurstVFX.Play();
+        if (jumpSFX) jumpSFX.Play();
+        if (camFeel) camFeel.KickTiltUp(2.5f);
     }
 
-    void OnCollisionEnter(Collision collision)
+    void OnCollisionEnter(Collision c)
     {
-        if (collision.gameObject.CompareTag("Ground"))
-        {
+        if (c.collider.CompareTag("Ground"))
             isGrounded = true;
-            verticalVelocity = 0f;
-        }
     }
 }
