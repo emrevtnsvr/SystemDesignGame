@@ -362,13 +362,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f115a9a20aca7fb408659b0293b61e52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Jump
-  rb: {fileID: 0}
-  jumpForce: 6.5
-  gravityScale: 2
-  isGrounded: 0
+  desiredJumpHeight: 3.2
+  timeToApex: 0.5
+  apexThresholdY: 0.5
+  ascendMult: 1
+  apexMult: 0.35
+  fallMult: 1.6
+  cutJumpMult: 2
   jetBurstVFX: {fileID: 1114710435}
   jumpSFX: {fileID: 948286439}
-  mainCamera: {fileID: 1547860719}
+  camFeel: {fileID: 0}
 --- !u!54 &948286441
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -5422,8 +5425,10 @@ MonoBehaviour:
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 0
   m_RenderingLayersMask:
+    serializedVersion: 0
     m_Bits: 1
   m_ShadowRenderingLayersMask:
+    serializedVersion: 0
     m_Bits: 1
   m_Version: 4
   m_LightLayerMask: 1
@@ -5522,6 +5527,7 @@ GameObject:
   - component: {fileID: 1547860719}
   - component: {fileID: 1547860718}
   - component: {fileID: 1547860721}
+  - component: {fileID: 1547860722}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -5622,6 +5628,7 @@ MonoBehaviour:
   m_Cameras: []
   m_RendererIndex: -1
   m_VolumeLayerMask:
+    serializedVersion: 2
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
@@ -5646,6 +5653,22 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!114 &1547860722
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1547860717}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 814f41a899331614380e446a11b43461, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraFeel
+  baseRotation: {x: 0, y: 0, z: 0, w: 0}
+  additivePitch: 0
+  returnSpeed: 120
+  maxAbsPitch: 10
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
