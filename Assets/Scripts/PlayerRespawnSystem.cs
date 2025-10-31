@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Unity.Cinemachine;
+using UnityEngine;
 
 public class PlayerRespawnSystem : MonoBehaviour
 {
@@ -8,13 +9,23 @@ public class PlayerRespawnSystem : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        startPosition = transform.position; // Başlangıç pozisyonunu kaydet
+        startPosition = transform.position;
     }
 
     public void RespawnPlayer()
     {
         rb.linearVelocity = Vector3.zero;
-        transform.position = startPosition + Vector3.up * 1f; // Yerden biraz yukarıda spawn
+        transform.position = startPosition + Vector3.up * 1f;
+        transform.rotation = Quaternion.identity; // player'ı düzleştir
+
+        // Cinemachine kamerayı resetle
+        var vcam = FindObjectOfType<CinemachineVirtualCamera>();
+        if (vcam != null)
+        {
+            vcam.OnTargetObjectWarped(transform, transform.position - startPosition);
+        }
+
         Debug.Log("Respawned to start position!");
     }
 }
+
