@@ -1,17 +1,51 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using Unity.Cinemachine;
+using Unity.VisualScripting;
+using UnityEngine;
 
 public class ObstacleSystem : MonoBehaviour
 {
-    private void OnCollisionEnter(Collision collision)
+
+    private List<GameObject> allObstacles = new List<GameObject>();
+    private Dictionary<GameObject, Vector3> startPositions = new Dictionary<GameObject, Vector3>();
+    private Dictionary<GameObject, Quaternion> startRotations = new Dictionary<GameObject, Quaternion>();
+
+    void Awake()
     {
-        if (collision.collider.CompareTag("Player"))
+        CacheObstacles();
+    }
+
+    private void CacheObstacles()
+    {
+        allObstacles.Clear();
+        startPositions.Clear();
+        startRotations.Clear();
+
+        GameObject[] obstacles = Resources.FindObjectsOfTypeAll<GameObject>();
+
+        foreach (GameObject obj in obstacles)
         {
-            Debug.Log("Player hit an obstacle!");
-            PlayerRespawnSystem respawn = collision.collider.GetComponent<PlayerRespawnSystem>();
-            if (respawn != null)
+            if (obj.CompareTag("Obstacle"))
             {
-                respawn.RespawnPlayer();
+                allObstacles.Add(obj);
+                startPositions[obj] = obj.transform.position;
+                startRotations[obj] = obj.transform.rotation;
             }
         }
-    }   
+    }
+
+    public void ResetObstacles()
+    {
+        foreach (GameObject obstacle in allObstacles)
+        {
+            if (obstacle != null)
+            {
+                obstacle.SetActive(true);
+                obstacle.transform.position = startPositions[obstacle];
+                obstacle.transform.rotation = startRotations[obstacle];
+            }
+        }
+
+        Debug.Log("✅ Obstacle'lar resetlendi.");
+    }
 }

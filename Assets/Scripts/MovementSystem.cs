@@ -1,36 +1,56 @@
 ﻿using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(PlayerInputSystem))]
 public class MovementSystem : MonoBehaviour
 {
-    public float forwardSpeed = 14f;  // 🔼 arttır, 10–14 arası ideal
-    public float lateralSpeed = 7f;   // sağ–sol hareket
-    public float lateralClamp = 12f;   // sağ–sol sınır
+    public float baseForwardSpeed = 5f;
+    public float baseStrafeSpeed = 5f;
 
-    Rigidbody rb;
+    public float minX = -5f;
+    public float maxX = 5f;
+
+    private float currentForwardSpeed;
+    private float currentStrafeSpeed;
+
+    private Rigidbody rb;
+    private PlayerInputSystem input;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        input = GetComponent<PlayerInputSystem>();
+
+        currentForwardSpeed = baseForwardSpeed;
+        currentStrafeSpeed = baseStrafeSpeed;
     }
 
     void FixedUpdate()
     {
-        Vector3 v = rb.linearVelocity;
+        Vector3 forward = transform.forward * currentForwardSpeed;
+        Vector3 strafe = -transform.right * input.horizontalInput * currentStrafeSpeed;
 
-        // sabit ileri hareket
-        v.z = -forwardSpeed;
+        Vector3 velocity = new Vector3(strafe.x, rb.linearVelocity.y, forward.z);
+        rb.linearVelocity = velocity;
 
-        // sağ–sol input
-        float xInput = 0f;
-        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) xInput = -1f;
-        if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) xInput = 1f;
+        // ❗ Pozisyon limiti uygula
+        Vector3 pos = transform.position;
+        pos.x = Mathf.Clamp(pos.x, minX, maxX);
+        transform.position = pos;
+    }
 
-        v.x = xInput * lateralSpeed;
-        rb.linearVelocity = new Vector3(v.x, rb.linearVelocity.y, v.z);
+    // Bu fonksiyon can kaybında yavaşlama için kullanılacak
+    public void SetSlowdown(float multiplier)
+    {
+        currentForwardSpeed = baseForwardSpeed * multiplier;
+        currentStrafeSpeed = baseStrafeSpeed * multiplier;
+    }
 
-        // sağ–sol sınır
-        Vector3 pos = rb.position;
-        pos.x = Mathf.Clamp(pos.x, -lateralClamp, lateralClamp);
-        rb.position = pos;
+    // Bu fonksiyon 2 saniye sonra hızı geri getirecek
+    public void RestoreSpeed()
+    {
+        currentForwardSpeed = baseForwardSpeed;
+        currentStrafeSpeed = baseStrafeSpeed;
     }
 }
+

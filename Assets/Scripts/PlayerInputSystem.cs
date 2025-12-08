@@ -1,18 +1,11 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PlayerInputSystem : MonoBehaviour
 {
-    public bool JumpPressed { get; private set; }
- 
+    public float horizontalInput;
+
     void Update()
     {
-        JumpPressed = Input.GetKeyDown(KeyCode.Space);
-        
-    }
-
-    public void ResetInputs()
-    {
-        JumpPressed = false;
-       
+        horizontalInput = Input.GetAxisRaw("Horizontal");
     }
 }
