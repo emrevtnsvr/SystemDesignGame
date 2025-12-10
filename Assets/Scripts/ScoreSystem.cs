@@ -5,9 +5,20 @@ public class ScoreSystem : MonoBehaviour
 {
     public TMP_Text scoreText;
     public float score;
-    public float scoreRate = 5f; // her saniye kaç puan artsın
-
+    public float scoreRate = 5f; // Her saniye kaç puan
     private bool isCounting = true;
+
+    [Header("Difficulty Scaling")]
+    public float difficultyStep = 100f;         // Kaç puanda bir zorluk artsın
+    public float speedMultiplier = 1.05f;       // Her adımda hız çarpanı
+    private float nextDifficultyScore = 100f;
+
+    private MovementSystem movementSystem;
+
+    void Start()
+    {
+        movementSystem = FindObjectOfType<MovementSystem>();
+    }
 
     void Update()
     {
@@ -15,12 +26,26 @@ public class ScoreSystem : MonoBehaviour
         {
             score += scoreRate * Time.deltaTime;
             UpdateUI();
+
+            // ✅ Hız artırma mantığı
+            if (score >= nextDifficultyScore)
+            {
+                nextDifficultyScore += difficultyStep;
+
+                if (movementSystem != null)
+                {
+                    movementSystem.IncreaseSpeed(speedMultiplier);
+                    Debug.Log("🔥 Speed increased at score: " + score);
+                }
+            }
         }
     }
 
     public void ResetScore()
     {
         score = 0;
+        nextDifficultyScore = difficultyStep;
+        isCounting = true;
         UpdateUI();
     }
 
@@ -44,6 +69,4 @@ public class ScoreSystem : MonoBehaviour
     {
         return Mathf.FloorToInt(score);
     }
-
-
 }

@@ -46,6 +46,6 @@ public class ObstacleSystem : MonoBehaviour
             }
         }
 
-        Debug.Log("✅ Obstacle'lar resetlendi.");
+
     }
 }

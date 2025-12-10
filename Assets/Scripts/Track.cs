@@ -12,9 +12,9 @@ public class Track : MonoBehaviour
         followPos.z -= 8f;  // Kameranın arkaya offset'i
         followPos.y += 3f;  // Kameranın yukarı offset'i
 
-        TrackObject.position = followPos;
+       // TrackObject.position = followPos;
 
-        // Kameranın bakacağı yön
-        TrackObject.rotation = Quaternion.LookRotation(Player.forward);
+       /// Kameranın bakacağı yön
+//TrackObject.rotation = Quaternion.LookRotation(Player.forward);
     }
 }

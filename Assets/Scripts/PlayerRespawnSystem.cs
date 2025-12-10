@@ -11,6 +11,7 @@ public class PlayerRespawnSystem : MonoBehaviour
 
 
     public Vector3 checkpointPosition;
+    MovementSystem movementSystem;
 
 
     private void Awake()
@@ -18,7 +19,7 @@ public class PlayerRespawnSystem : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         startPosition = transform.position;
 
-
+        movementSystem = GetComponent<MovementSystem>();
         checkpointPosition = checkpoint != null ? checkpoint.position : startPosition;
     }
 
@@ -28,6 +29,7 @@ public class PlayerRespawnSystem : MonoBehaviour
         rb.linearVelocity = Vector3.zero;
         transform.position = checkpointPosition + Vector3.up * 1f;
         transform.rotation = Quaternion.LookRotation(-Vector3.forward);
+        
 
 
         var vcam = FindObjectOfType<CinemachineVirtualCamera>();
@@ -38,6 +40,7 @@ public class PlayerRespawnSystem : MonoBehaviour
 
 
         Debug.Log("Respawned to checkpoint!");
+    
     }
 
 
@@ -47,8 +50,11 @@ public class PlayerRespawnSystem : MonoBehaviour
         rb.linearVelocity = Vector3.zero;
         transform.rotation = Quaternion.LookRotation(-Vector3.forward);
 
-        GetComponent<MovementSystem>().RestoreSpeed();
+        var moveSystem = GetComponent<MovementSystem>();
+        moveSystem.ResetSpeed();    
+        moveSystem.RestoreSpeed();
         GetComponent<PlayerLifeSystem>().ResetLives();
+        
 
         FindObjectOfType<BlackHoleMovement>()?.ResetToStart();
         FindObjectOfType<ObstacleSystem>()?.ResetObstacles(); // ✅ RESET OBSTACLES
@@ -56,7 +62,9 @@ public class PlayerRespawnSystem : MonoBehaviour
         FindObjectOfType<ScoreSystem>()?.ResetScore();
         FindObjectOfType<ScoreSystem>()?.StartScoring();
 
+
         Debug.Log("Player respawned.");
+        movementSystem.Reset();
     }
 }
 

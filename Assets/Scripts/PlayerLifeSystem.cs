@@ -13,23 +13,17 @@ public class PlayerLifeSystem : MonoBehaviour
 
     private bool isSlowingDown = false;
 
-    [Header("UI")]
-    public Image healthBarImage; // Fill-type image
+    public GameObject dizzyEffectPrefab;  
+    private GameObject activeDizzyEffect;
 
+    [Header("UI")]
+    public Image healthBarImage;
     private void Awake()
     {
         movementSystem = GetComponent<MovementSystem>();
         respawner = GetComponent<PlayerRespawnSystem>();
 
         ResetLives(); // ⛑️ En başta çağrılır
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Obstacle"))
-        {
-            TakeDamage();
-        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -51,6 +45,8 @@ public class PlayerLifeSystem : MonoBehaviour
         Debug.Log("Player damaged! Lives left: " + currentLives);
 
         UpdateHealthUI();
+
+        ShowDizzyEffect();  // ✅ Dizzy stars above head
 
         if (!isSlowingDown)
             StartCoroutine(ApplyTemporarySlowdown());
@@ -86,10 +82,32 @@ public class PlayerLifeSystem : MonoBehaviour
         isSlowingDown = true;
 
         movementSystem.SetSlowdown(0.7f);
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(1f);
         movementSystem.RestoreSpeed();
         isSlowingDown = false;
     }
 
+    private void ShowDizzyEffect()
+    {
+        if (dizzyEffectPrefab == null) return;
+
+        // Clear existing effect if any
+        if (activeDizzyEffect != null)
+            Destroy(activeDizzyEffect);
+
+        // Spawn at head position
+        Vector3 headPosition = transform.position + new Vector3(0, 2f, 0);
+        activeDizzyEffect = Instantiate(dizzyEffectPrefab, headPosition, Quaternion.identity, transform);
+
+        StartCoroutine(RemoveDizzyEffectAfterSeconds(2f));
+    }
+
+    private IEnumerator RemoveDizzyEffectAfterSeconds(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+
+        if (activeDizzyEffect != null)
+            Destroy(activeDizzyEffect);
+    }
 
 }

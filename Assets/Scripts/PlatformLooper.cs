@@ -3,18 +3,18 @@ using UnityEngine;
 
 public class PlatformLooper : MonoBehaviour
 {
-    public GameObject[] platformPrefabs;       // Spawnlanacak platformlar
-    public int initialPlatformCount = 5;       // Başlangıçta kaç tane spawn edilecek
-    public float platformLength = 10f;         // Her bir prefab'ın uzunluğu
-    public Transform player;                   // Oyuncunun transform'u
-    public float spawnDistance = 30f;          // Oyuncuya ne kadar yakın olunca yenisi spawnlanmalı
+    public GameObject[] platformPrefabs;       
+    public int initialPlatformCount = 5;      
+    public float platformLength = 10f;         
+    public Transform player;                   
+    public float spawnDistance = 30f;          
 
     private Queue<GameObject> activePlatforms = new Queue<GameObject>();
     private Vector3 nextSpawnPosition = Vector3.zero;
 
     private void Start()
     {
-        // İlk platformları sırayla yerleştir
+       
         for (int i = 0; i < initialPlatformCount; i++)
         {
             SpawnPlatform();
@@ -32,12 +32,12 @@ public class PlatformLooper : MonoBehaviour
 
     void SpawnPlatform()
     {
-        // Rastgele prefab seç
+        
         int index = Random.Range(0, platformPrefabs.Length);
         GameObject platform = Instantiate(platformPrefabs[index], nextSpawnPosition, Quaternion.identity);
         activePlatforms.Enqueue(platform);
 
-        // Sonraki spawn pozisyonunu ileriye kaydır
+       
         nextSpawnPosition.z += platformLength;
     }
 
